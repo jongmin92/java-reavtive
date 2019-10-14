@@ -2,6 +2,8 @@ package com.jongmin.reactive.practice;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,6 +40,10 @@ public class Ob {
         IntObservable io = new IntObservable();
         io.addObserver(ob);
 
-        io.run();
+        ExecutorService es = Executors.newSingleThreadExecutor();
+        es.execute(io);
+
+        log.info("EXIT");
+        es.shutdown();
     }
 }
