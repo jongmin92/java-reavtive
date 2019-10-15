@@ -91,8 +91,8 @@ public class PubSub2 {
         };
     }
 
-    private static Subscriber<Integer> logSub() {
-        return new Subscriber<Integer>() {
+    private static <T> Subscriber<T> logSub() {
+        return new Subscriber<T>() {
             @Override
             public void onSubscribe(Subscription s) {
                 log.info("onSubscribe");
@@ -100,7 +100,7 @@ public class PubSub2 {
             }
 
             @Override
-            public void onNext(Integer i) {
+            public void onNext(T i) {
                 log.info("onNext: {}", i);
             }
 
