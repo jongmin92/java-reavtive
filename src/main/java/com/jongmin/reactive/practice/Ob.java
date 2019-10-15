@@ -8,9 +8,10 @@ import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 1. Reactive 관련된 아이디어를 이야기 할 때 Duality(쌍대성)라는 용어가 등장한다.
- * 2. Observer Pattern
- * 3. Reactive Streams - 표준 -> Java9 JDK에 추가됨
+ * Observer Pattern에 부족한 부분 2가지
+ * 1. Complete의 개념이 부족
+ * 2. 예외가 전파되는 방식, 예외를 어떻게 처리할 것인가에 대한 부분
+ * [reactive-streams](http://www.reactive-streams.org)는 이런 부족한 부분을 해결하는 답을 갖고 있다.
  */
 @Slf4j
 public class Ob {
