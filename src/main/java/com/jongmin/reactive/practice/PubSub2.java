@@ -1,6 +1,7 @@
 package com.jongmin.reactive.practice;
 
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,23 +23,22 @@ public class PubSub2 {
         Publisher<Integer> pub = iterPub(Stream.iterate(1, a -> a + 1)
                                                .limit(10)
                                                .collect(Collectors.toList()));
-        Publisher<Integer> mapPub = mapPub(pub, s -> s * 10);
+//        Publisher<Integer> mapPub = mapPub(pub, s -> s * 10);
 //        Publisher<Integer> sumPub = sumPub(pub);
-//        Publisher<Integer> reducePub = reducePub(pub, 0, (a, b) -> a + b);
-        mapPub.subscribe(logSub());
+        Publisher<Integer> reducePub = reducePub(pub, 0, (a, b) -> a + b);
+        reducePub.subscribe(logSub());
     }
 
-    /*
-    private static Publisher<Integer> reducePub(Publisher<Integer> pub, int init,
-                                                BiFunction<Integer, Integer, Integer> bf) {
-        return new Publisher<Integer>() {
+    private static <T, R> Publisher<R> reducePub(Publisher<T> pub, R init,
+                                                 BiFunction<R, T, R> bf) {
+        return new Publisher<R>() {
             @Override
-            public void subscribe(Subscriber<? super Integer> sub) {
-                pub.subscribe(new DelegateSub(sub) {
-                    int result = init;
+            public void subscribe(Subscriber<? super R> sub) {
+                pub.subscribe(new DelegateSub<T, R>(sub) {
+                    R result = init;
 
                     @Override
-                    public void onNext(Integer i) {
+                    public void onNext(T i) {
                         result = bf.apply(result, i);
                     }
 
@@ -51,7 +51,6 @@ public class PubSub2 {
             }
         };
     }
-    */
 
     /*
     private static Publisher<Integer> sumPub(Publisher<Integer> pub) {
