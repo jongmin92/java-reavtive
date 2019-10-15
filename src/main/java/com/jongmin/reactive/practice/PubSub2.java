@@ -1,7 +1,6 @@
 package com.jongmin.reactive.practice;
 
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,12 +22,13 @@ public class PubSub2 {
         Publisher<Integer> pub = iterPub(Stream.iterate(1, a -> a + 1)
                                                .limit(10)
                                                .collect(Collectors.toList()));
-//        Publisher<Integer> mapPub = mapPub(pub, s -> s * 10);
+        Publisher<Integer> mapPub = mapPub(pub, s -> s * 10);
 //        Publisher<Integer> sumPub = sumPub(pub);
-        Publisher<Integer> reducePub = reducePub(pub, 0, (a, b) -> a + b);
-        reducePub.subscribe(logSub());
+//        Publisher<Integer> reducePub = reducePub(pub, 0, (a, b) -> a + b);
+        mapPub.subscribe(logSub());
     }
 
+    /*
     private static Publisher<Integer> reducePub(Publisher<Integer> pub, int init,
                                                 BiFunction<Integer, Integer, Integer> bf) {
         return new Publisher<Integer>() {
@@ -51,7 +51,9 @@ public class PubSub2 {
             }
         };
     }
+    */
 
+    /*
     private static Publisher<Integer> sumPub(Publisher<Integer> pub) {
         return new Publisher<Integer>() {
             @Override
@@ -73,14 +75,15 @@ public class PubSub2 {
             }
         };
     }
+    */
 
-    private static Publisher<Integer> mapPub(Publisher<Integer> pub, Function<Integer, Integer> f) {
-        return new Publisher<Integer>() {
+    private static <T> Publisher<T> mapPub(Publisher<T> pub, Function<T, T> f) {
+        return new Publisher<T>() {
             @Override
-            public void subscribe(Subscriber<? super Integer> sub) {
-                pub.subscribe(new DelegateSub(sub) {
+            public void subscribe(Subscriber<? super T> sub) {
+                pub.subscribe(new DelegateSub<T>(sub) {
                     @Override
-                    public void onNext(Integer i) {
+                    public void onNext(T i) {
                         sub.onNext(f.apply(i));
                     }
                 });
