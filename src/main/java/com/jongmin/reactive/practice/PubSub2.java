@@ -23,32 +23,18 @@ public class PubSub2 {
                                                .limit(10)
                                                .collect(Collectors.toList()));
         Publisher<Integer> mapPub = mapPub(pub, s -> s * 10);
-        mapPub.subscribe(logSub());
+        Publisher<Integer> map2Pub = mapPub(mapPub, s -> -s);
+        map2Pub.subscribe(logSub());
     }
 
     private static Publisher<Integer> mapPub(Publisher<Integer> pub, Function<Integer, Integer> f) {
         return new Publisher<Integer>() {
             @Override
             public void subscribe(Subscriber<? super Integer> sub) {
-                pub.subscribe(new Subscriber<Integer>() {
-                    @Override
-                    public void onSubscribe(Subscription s) {
-                        sub.onSubscribe(s);
-                    }
-
+                pub.subscribe(new DelegateSub(sub) {
                     @Override
                     public void onNext(Integer i) {
                         sub.onNext(f.apply(i));
-                    }
-
-                    @Override
-                    public void onError(Throwable t) {
-                        sub.onError(t);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        sub.onComplete();
                     }
                 });
             }
