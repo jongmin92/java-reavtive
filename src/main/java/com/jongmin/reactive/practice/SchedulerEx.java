@@ -35,11 +35,40 @@ public class SchedulerEx {
             }
         };
 
-        Publisher<Integer> subOnPub = new Publisher<Integer>() {
+//        Publisher<Integer> subOnPub = new Publisher<Integer>() {
+//            @Override
+//            public void subscribe(Subscriber<? super Integer> sub) {
+//                ExecutorService es = Executors.newSingleThreadExecutor();
+//                es.execute(() -> pub.subscribe(sub));
+//            }
+//        };
+
+        Publisher<Integer> pubOnPub = new Publisher<Integer>() {
             @Override
             public void subscribe(Subscriber<? super Integer> sub) {
-                ExecutorService es = Executors.newSingleThreadExecutor();
-                es.execute(() -> pub.subscribe(sub));
+                pub.subscribe(new Subscriber<Integer>() {
+                    ExecutorService es = Executors.newSingleThreadExecutor();
+
+                    @Override
+                    public void onSubscribe(Subscription s) {
+                        sub.onSubscribe(s);
+                    }
+
+                    @Override
+                    public void onNext(Integer integer) {
+                        es.execute(() -> sub.onNext(integer));
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        es.execute(() -> sub.onError(t));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        es.execute(() -> sub.onComplete());
+                    }
+                });
             }
         };
 
@@ -66,7 +95,7 @@ public class SchedulerEx {
             }
         };
 
-        subOnPub.subscribe(sub);
+        pubOnPub.subscribe(sub);
 
         log.info("exit");
     }
