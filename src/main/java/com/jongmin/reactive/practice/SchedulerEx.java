@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,19 +36,19 @@ public class SchedulerEx {
             }
         };
 
-//        Publisher<Integer> subOnPub = new Publisher<Integer>() {
-//            @Override
-//            public void subscribe(Subscriber<? super Integer> sub) {
-//                ExecutorService es = Executors.newSingleThreadExecutor();
-//                es.execute(() -> pub.subscribe(sub));
-//            }
-//        };
+        Publisher<Integer> subOnPub = new Publisher<Integer>() {
+            @Override
+            public void subscribe(Subscriber<? super Integer> sub) {
+                ExecutorService es = Executors.newSingleThreadExecutor(new CustomizableThreadFactory("subOn-"));
+                es.execute(() -> pub.subscribe(sub));
+            }
+        };
 
         Publisher<Integer> pubOnPub = new Publisher<Integer>() {
             @Override
             public void subscribe(Subscriber<? super Integer> sub) {
-                pub.subscribe(new Subscriber<Integer>() {
-                    ExecutorService es = Executors.newSingleThreadExecutor();
+                subOnPub.subscribe(new Subscriber<Integer>() {
+                    ExecutorService es = Executors.newSingleThreadExecutor(new CustomizableThreadFactory("pubOn-"));
 
                     @Override
                     public void onSubscribe(Subscription s) {
