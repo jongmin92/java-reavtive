@@ -1,5 +1,8 @@
 package com.jongmin.reactive.practice;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -15,6 +18,7 @@ public class SchedulerEx {
                 sub.onSubscribe(new Subscription() {
                     @Override
                     public void request(long n) {
+                        log.info("request");
                         sub.onNext(1);
                         sub.onNext(2);
                         sub.onNext(3);
@@ -28,6 +32,14 @@ public class SchedulerEx {
 
                     }
                 });
+            }
+        };
+
+        Publisher<Integer> subOnPub = new Publisher<Integer>() {
+            @Override
+            public void subscribe(Subscriber<? super Integer> sub) {
+                ExecutorService es = Executors.newSingleThreadExecutor();
+                es.execute(() -> pub.subscribe(sub));
             }
         };
 
@@ -54,6 +66,8 @@ public class SchedulerEx {
             }
         };
 
-        pub.subscribe(sub);
+        subOnPub.subscribe(sub);
+
+        log.info("exit");
     }
 }
